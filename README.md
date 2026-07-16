@@ -29,3 +29,38 @@ flowchart TD
 ```
 
 *Under the hood: S3 (storage) → Lambda (orchestration) → Rekognition (image understanding + moderation) → Bedrock (caption generation) → Polly (text-to-speech) → DynamoDB (storage) → API Gateway (retrieval) → S3 (frontend).*
+
+## Proof it works
+
+**Frontend result**
+![Frontend demo](docs/frontend-demo.png)
+
+**CloudWatch logs showing the full pipeline executing end-to-end**
+```
+New file uploaded: s3://aif-content-analyzer/pencil.png
+Detected labels: ['Pencil']
+Generated caption: A single pencil, resting against a plain background.
+Audio saved to: s3://aif-content-analyzer/audio/pencil.mp3
+Record saved to DynamoDB for pencil.png
+...
+New file uploaded: s3://aif-content-analyzer/audio/pencil.mp3
+Skipping self-generated audio file: audio/pencil.mp3
+```
+![CloudWatch logs](docs/cloudwatch-logs-example.png)
+
+**DynamoDB record**
+![DynamoDB entry](docs/dynamodb-entry-example.png)
+
+## Tech stack
+
+| Service | Role |
+|---|---|
+| S3 | Image storage + static website hosting |
+| Lambda | Orchestrates the analysis pipeline and serves API results |
+| Rekognition | Content moderation + label detection |
+| Bedrock (Amazon Nova Lite) | Generates natural-language captions |
+| Polly | Converts captions to speech |
+| DynamoDB | Stores processed results |
+| API Gateway | Exposes results via a REST endpoint |
+| IAM | Per-function execution roles |
+| CloudWatch | Logging and monitoring |
