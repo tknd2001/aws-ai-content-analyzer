@@ -33,6 +33,7 @@ flowchart TD
 ## Proof it works
 
 **Frontend result**
+
 ![Frontend demo](docs/frontend-demo.png)
 
 **CloudWatch logs showing the full pipeline executing end-to-end**
@@ -49,6 +50,7 @@ Skipping self-generated audio file: audio/pencil.mp3
 ![CloudWatch logs](docs/cloudwatch-logs-example.png)
 
 **DynamoDB record**
+
 ![DynamoDB entry](docs/dynamodb-entry-example.png)
 
 ## Tech stack
