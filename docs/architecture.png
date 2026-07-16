@@ -1,0 +1,15 @@
+User uploads image → S3 bucket
+        ↓
+Analyzer Lambda (triggered on upload)
+        ↓
+   ┌────────────┬─────────────────┬──────────┐
+Rekognition   Bedrock Nova Lite   Polly
+(moderation   (generates caption) (text-to-
++ labels)                          speech)
+   └────────────┴─────────────────┴──────────┘
+        ↓
+   DynamoDB (stores results)
+        ↓
+   API Gateway + Lambda (serves results via REST)
+        ↓
+   S3 static frontend (displays results to user)
