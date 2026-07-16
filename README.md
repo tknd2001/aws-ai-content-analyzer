@@ -66,3 +66,29 @@ Skipping self-generated audio file: audio/pencil.mp3
 | API Gateway | Exposes results via a REST endpoint |
 | IAM | Per-function execution roles |
 | CloudWatch | Logging and monitoring |
+
+## Setup
+
+1. Create an S3 bucket for uploads (encryption enabled, public access blocked).
+2. Create the analyzer Lambda function (`lambdas/analyze/index.py`), attach an execution role with Rekognition, Bedrock, Polly, DynamoDB, and S3 permissions.
+3. Add an S3 trigger on `ObjectCreated` events pointing to the analyzer Lambda.
+4. Create a DynamoDB table (`fileKey` as partition key).
+5. Request access to an Amazon Nova or Anthropic Claude model in the Bedrock console under Model catalog. Note: some models require a region-prefixed inference profile ID rather than a bare model ID for `invoke_model` — check the model's detail page in the console.
+6. Create a second Lambda (`lambdas/get-result/index.py`) to read from DynamoDB, attach a read-only DynamoDB policy.
+7. Create an HTTP API in API Gateway, add a `GET /results` route integrated with the get-result Lambda, and enable CORS (`Access-Control-Allow-Origin: *`, methods: `GET`, headers: `*`).
+8. Create a second S3 bucket for the frontend, enable static website hosting, and apply a public-read bucket policy.
+9. Upload `frontend/index.html` (with your API and bucket URLs filled in) to the frontend bucket.
+
+## Repository structure
+
+```
+lambdas/
+  analyze/index.py        — main analysis pipeline (Rekognition, Bedrock, Polly, DynamoDB)
+  get-result/index.py     — API-facing Lambda that reads results from DynamoDB
+frontend/
+  index.html               — static frontend for looking up results
+docs/
+  frontend-demo.png
+  cloudwatch-logs-example.png
+  dynamodb-entry-example.png
+```
