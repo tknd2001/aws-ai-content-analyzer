@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Content Analyzer</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px 0; width: 100%; box-sizing: border-box; }
+    button { background: #232f3e; color: white; border: none; cursor: pointer; }
+    #result { margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px; display: none; }
+    #result img { max-width: 100%; border-radius: 4px; }
+    .label { display: inline-block; background: #eee; padding: 4px 10px; border-radius: 12px; margin: 4px 4px 0 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>AI Content Analyzer</h1>
+  <p>Enter the filename of an image already uploaded to the S3 bucket to view its AI-generated analysis.</p>
+
+  <input type="text" id="fileKeyInput" placeholder="e.g. pencil.png">
+  <button onclick="fetchResult()">Get Analysis</button>
+
+  <div id="result">
+    <h3 id="caption"></h3>
+    <div id="labels"></div>
+    <audio id="audioPlayer" controls style="width:100%; margin-top:15px;"></audio>
+  </div>
+
+  <script>
+    const API_URL = "YOUR_API_INVOKE_URL/results";
+    const CONTENT_BUCKET_URL = "YOUR_CONTENT_BUCKET_S3_URL";
+
+    async function fetchResult() {
+      const fileKey = document.getElementById('fileKeyInput').value.trim();
+      if (!fileKey) return;
+
+      const res = await fetch(`${API_URL}?fileKey=${encodeURIComponent(fileKey)}`);
+      const data = await res.json();
+
+      if (res.status !== 200) {
+        alert(data.error || "Something went wrong");
+        return;
+      }
+
+      document.getElementById('caption').innerText = data.caption;
+      document.getElementById('labels').innerHTML = data.labels
+        .map(l => `<span class="label">${l}</span>`).join('');
+      document.getElementById('audioPlayer').src = `${CONTENT_BUCKET_URL}/${data.audioKey}`;
+      document.getElementById('result').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
